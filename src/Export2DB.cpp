@@ -33,7 +33,7 @@ Export2DB::Export2DB(const  po::variables_map &vm)
     /*
     this->conninf="host="+host+" user="+user+" dbname="+ dbname +" port="+port;
     this->tables_prefix = tables_prefix;
-	if(!passwd.empty())
+	if(!passwd.empty())tables_prefix
         this->conninf+=" password="+passwd;
     */
 
@@ -395,9 +395,9 @@ void Export2DB::exportTypesWithClasses(std::map<std::string, Type*>& types)
 	}
 	PQputline(mycon, "\\.\n");
 	PQendcopy(mycon);
-
+	 //classes (id integer PRIMARY KEY, type_id integer, name text, cost double precision, priority double precision, default_maxspeed integer);
 	tIt = types.begin();
-    std::string copy_classes( "COPY " + tables_prefix + "classes(id, type_id, name, priority, default_maxspeed) FROM STDIN");
+    std::string copy_classes( "COPY " + tables_prefix + "classes(id, type_id, name, cost, priority, default_maxspeed) FROM STDIN");
 	res = PQexec(mycon, copy_classes.c_str());
 	PQclear(res);
 	while(tIt!=tLast)
@@ -415,6 +415,8 @@ void Export2DB::exportTypesWithClasses(std::map<std::string, Type*>& types)
 			row_data += TO_STR(type->id);
 			row_data += "\t";
 			row_data += clss->name;
+			row_data += "\t";
+			row_data += TO_STR(clss->cost);
 			row_data += "\t";
 			row_data += TO_STR(clss->priority);
 			row_data += "\t";
